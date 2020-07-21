@@ -606,15 +606,13 @@ func ChainedSeriesMerge(series ...Series) Series {
 	if len(series) == 0 {
 		return nil
 	}
+	iterators := make([]chunkenc.Iterator, 0, len(series))
+	for _, s := range series {
+		iterators = append(iterators, s.Iterator())
+	}
 	return &SeriesEntry{
-		Lset: series[0].Labels(),
-		SampleIteratorFn: func() chunkenc.Iterator {
-			iterators := make([]chunkenc.Iterator, 0, len(series))
-			for _, s := range series {
-				iterators = append(iterators, s.Iterator())
-			}
-			return newChainSampleIterator(iterators)
-		},
+		Lset:           series[0].Labels(),
+		SampleIterator: newChainSampleIterator(iterators),
 	}
 }
 
@@ -728,17 +726,16 @@ func NewCompactingChunkSeriesMerger(mergeFunc VerticalSeriesMergeFunc) VerticalC
 		if len(series) == 0 {
 			return nil
 		}
+
+		iterators := make([]chunks.Iterator, 0, len(series))
+		for _, s := range series {
+			iterators = append(iterators, s.Iterator())
+		}
 		return &ChunkSeriesEntry{
 			Lset: series[0].Labels(),
-			ChunkIteratorFn: func() chunks.Iterator {
-				iterators := make([]chunks.Iterator, 0, len(series))
-				for _, s := range series {
-					iterators = append(iterators, s.Iterator())
-				}
-				return &compactChunkIterator{
-					mergeFunc: mergeFunc,
-					iterators: iterators,
-				}
+			ChunkIterator: &compactChunkIterator{
+				mergeFunc: mergeFunc,
+				iterators: iterators,
 			},
 		}
 	}

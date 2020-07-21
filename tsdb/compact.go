@@ -1083,8 +1083,8 @@ func newBlockSeriesSet(i IndexReader, c ChunkReader, t tombstones.Reader, p inde
 
 func (b *blockSeriesSet) At() storage.Series {
 	return &storage.SeriesEntry{
-		Lset:             b.currLabels,
-		SampleIteratorFn: func() chunkenc.Iterator { return b.currIter.toSeriesIterator() },
+		Lset:           b.currLabels,
+		SampleIterator: b.currIter.toSeriesIterator(),
 	}
 }
 
@@ -1110,8 +1110,8 @@ func newBlockChunkSeriesSet(i IndexReader, c ChunkReader, t tombstones.Reader, p
 
 func (b *blockChunkSeriesSet) At() storage.ChunkSeries {
 	return &storage.ChunkSeriesEntry{
-		Lset:            b.currLabels,
-		ChunkIteratorFn: func() chunks.Iterator { return b.currIter.toChunkSeriesIterator() },
+		Lset:          b.currLabels,
+		ChunkIterator: b.currIter.toChunkSeriesIterator(),
 	}
 }
 
